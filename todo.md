@@ -1,7 +1,7 @@
 
 ## 1️⃣ Configuração do Ambiente
-- [ ] Criar repositório no GitHub e clonar para a máquina local
-- [ ] Criar ambiente virtual e instalar dependências:
+- [X] Criar repositório no GitHub e clonar para a máquina local
+- [X] Criar ambiente virtual e instalar dependências:
   ```sh
   python -m venv venv
   source venv/bin/activate  

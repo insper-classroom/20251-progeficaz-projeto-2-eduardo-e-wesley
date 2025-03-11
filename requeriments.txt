@@ -3,3 +3,4 @@ mysql
 pytest
 dotenv
 api
+mysql-connector-python
