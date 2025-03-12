@@ -10,9 +10,7 @@ load_dotenv('.cred')
 # Configurações para conexão com o banco de dados usando variáveis de ambiente
 config = {
     'host': os.getenv('DB_HOST', 'localhost'),  # Obtém o host do banco de dados da variável de ambiente
-    'user': os.getenv('DB_USER'),  # Obtém o usuário do banco de dados da variável de ambiente
-    'password': os.getenv('DB_PASSWORD'),  # Obtém a senha do banco de dados da variável de ambiente
-    'database': os.getenv('DB_NAME', 'db_escola'),  # Obtém o nome do banco de dados da variável de ambiente
+    'database': os.getenv('DB_IMOVEL', 'db_cidade'),  # Obtém o imovel do banco de dados da variável de ambiente
     'port': int(os.getenv('DB_PORT', 3306)),  # Obtém a porta do banco de dados da variável de ambiente
     'ssl_ca': os.getenv('SSL_CA_PATH')  # Caminho para o certificado SSL
 }
@@ -35,8 +33,8 @@ def connect_db():
 app = Flask(__name__)
 
 
-@app.route('/alunos', methods=['GET'])
-def get_alunos():
+@app.route('/imoveis', methods=['GET'])
+def get_imoveis():
 
     # conectar colm a base
     conn = connect_db()
@@ -48,24 +46,24 @@ def get_alunos():
     # se chegou até, tenho uma conexão válida
     cursor = conn.cursor()
 
-    sql = "SELECT * from tbl_alunos"
+    sql = "SELECT * from tbl_imoveis"
     cursor.execute(sql)
 
     results = cursor.fetchall()
     if not results:
-        resp = {"erro": "Nenhum aluno encontrado"}
+        resp = {"erro": "Nenhum imovel encontrado"}
         return resp, 404
     else:
-        alunos = []
-        for aluno in results:
-            aluno_dict = {
-                "id": aluno[0],
-                "nome": aluno[1],
-                "frase": aluno[2]
+        imoveis = []
+        for imovel in results:
+            imovel_dict = {
+                "id": imovel[0],
+                "imovel": imovel[1],
+                "endereço": imovel[2]
             }
-            alunos.append(aluno_dict)
+            imoveis.append(imovel_dict)
 
-        resp = {"alunos": alunos}
+        resp = {"imoveis": imoveis}
         return resp, 200
 
 
@@ -77,7 +75,7 @@ def delete_conteudo():
         return {'Erro': "Erro ao conectar ao banco de dados"}, 500
     
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM tbl_alunos WHERE id=3")
+    cursor.execute("DELETE FROM tbl_imoveis WHERE id=3")
     rows_deleted = cursor.rowcount  # Obtém o número de linhas deletadas
     conn.commit()  # Confirma a exclusão
 
@@ -85,7 +83,7 @@ def delete_conteudo():
         resposta = {"Mensagem": f'Foram apagados {rows_deleted} items'}
         status_code = 200
     else:
-        resposta = {'Erro': "Nenhum aluno encontrado com o ID fornecido"}
+        resposta = {'Erro': "Nenhum imovel encontrado com o ID fornecido"}
         status_code = 404
 
     cursor.close()
