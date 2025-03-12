@@ -120,10 +120,24 @@ def test_put_imovel_passa(mock_connect_db, client):
     response = client.put('/atualiza')
     assert response.status_code == 200
 
-    expeted_response = {'Mensagem':'Atualizado com Sucesso'}
+    expected_response = {'Mensagem':'Atualizado com Sucesso'}
+    assert response.get_json() == expected_response
 
-    assert response == expeted_response
 
+@patch('api.connect_db')
+def test_put_imovel_nao_passa(mock_connect_db,client):
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
+    mock_conn.cursor.return_value = mock_cursor
 
-def test_put_imovel_nao_passa():
-    pass
+    mock_cursor.fetchall.return_value = [
+        (1, 'Alice', 'abracadabra'),
+    ]
+
+    mock_connect_db.return_value = mock_conn
+
+    response = client.put('/atualiza')
+    assert response.status_code == 404
+
+    expected_response = {'Mensagem':'Nenhum imovel encontrado com o ID fornecido'}
+    assert response.get_json() == expected_response
