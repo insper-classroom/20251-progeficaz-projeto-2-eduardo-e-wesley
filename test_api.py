@@ -60,7 +60,7 @@ def test_get_alunos_vazio(mock_connect_db, client):
 
 
 @patch('api.connect_db')
-def test_delete_aluno(mock_connect_db,client):
+def test_delete_passa(mock_connect_db,client):
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
@@ -80,37 +80,32 @@ def test_delete_aluno(mock_connect_db,client):
     response = client.delete('/delete')
     assert response.status_code == 200
 
-
     expected_response = {'Mensagem':'Foram apagados 1 items'}
     assert response.get_json() == expected_response
 
 
- 
-# @patch('api.connect_db')
-# def test_put_aluno(mock_connect_db, client):
+ @patch('api.connect_db')
+def test_delete_nao_passa():
+    pass
 
-#     mock_conn = MagicMock()
-#     mock_cursor = MagicMock()
 
-#     mock_conn.cursor.return_value = mock_cursor
+@patch('api.connect_db')
+def test_put_aluno(mock_connect_db, client):
 
-#     mock_cursor.fetchall.return_value = [
-#         (1, 'Alice', 'abracadabra'),
-#         (2, 'Bob', 'Bob show Bob'),
-#         (3, 'Sam', 'winchester'),
-#         (4, 'Scooby', 'Doobydoobydoo'),
-#     ]
+    mock_conn = MagicMock()
+    mock_cursor = MagicMock()
 
-#     mock_connect_db.return_value = mock_conn
+    mock_conn.cursor.return_value = mock_cursor
 
-#     response = client.patch('/atualiza')
-#     assert response.status_code == 200
+    mock_cursor.fetchall.return_value = [
+        (1, 'Alice', 'abracadabra'),
+    ]
 
-#     expeted_response = [
-#         (1, 'Alice', 'abracadabra'),
-#         (2, 'Bob', 'Só Bob'),
-#         (3, 'Sam', 'winchester'),
-#         (4, 'Scooby', 'Doobydoobydoo'),
-#     ]
+    mock_connect_db.return_value = mock_conn
 
-#     assert response == expeted_response
+    response = client.patch('/atualiza')
+    assert response.status_code == 200
+
+    expeted_response = {'Mensagem':'Atuaalizado com Sucesso'}
+
+    assert response == expeted_response

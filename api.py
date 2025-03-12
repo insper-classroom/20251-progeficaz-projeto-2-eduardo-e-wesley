@@ -94,15 +94,6 @@ def delete_conteudo():
     return resposta, status_code
 
 
-@app.route('/atualiza', methods=['PATCH'])
-def atualiza_conteudo():
-    conn = connect_db()
-    if conn is None:
-        return {'Erro':'Erro ao conectar com o banco de dados'}, 500
-
-    cursor = conn.cursor()
-    cursor.execute('')
-
 
 
 if __name__ == '__main__':
