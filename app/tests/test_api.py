@@ -1,4 +1,5 @@
-from main import app, connect_db
+from main import app
+from database.connection import connect_db
 import pytest
 from unittest.mock import patch, MagicMock
 import sys
