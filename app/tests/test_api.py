@@ -20,7 +20,6 @@ def client():
 def test_listar_imoveis_retorna_sucesso(mock_connect_db, client):
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
-
     mock_conn.cursor.return_value = mock_cursor
 
     mock_cursor.fetchall.return_value = [
@@ -29,12 +28,11 @@ def test_listar_imoveis_retorna_sucesso(mock_connect_db, client):
         (2, 'av. Brasil', 'Avenida', 'Jd. América', 'São Paulo',
          '01430001', 'apartamento', 50000000, '2002-12-31'),
     ]
-
     mock_connect_db.return_value = mock_conn
 
     response = client.get('/imoveis')
-
     assert response.status_code == 200
+
     assert response.get_json() == {
         'imoveis': [
             {
@@ -47,6 +45,11 @@ def test_listar_imoveis_retorna_sucesso(mock_connect_db, client):
                 'tipo': 'casa',
                 'valor': 20000000,
                 'data_aquisicao': '2019-12-12',
+                '_links': [
+                    {'href': '/imoveis/1', 'rel': 'self',   'type': 'GET'},
+                    {'href': '/imoveis/1', 'rel': 'update', 'type': 'PUT'},
+                    {'href': '/imoveis/1', 'rel': 'delete', 'type': 'DELETE'},
+                ]
             },
             {
                 'id': 2,
@@ -58,7 +61,16 @@ def test_listar_imoveis_retorna_sucesso(mock_connect_db, client):
                 'tipo': 'apartamento',
                 'valor': 50000000,
                 'data_aquisicao': '2002-12-31',
+                '_links': [
+                    {'href': '/imoveis/2', 'rel': 'self',   'type': 'GET'},
+                    {'href': '/imoveis/2', 'rel': 'update', 'type': 'PUT'},
+                    {'href': '/imoveis/2', 'rel': 'delete', 'type': 'DELETE'},
+                ]
             },
+        ],
+        '_links': [
+            {'href': '/imoveis', 'rel': 'self',   'type': 'GET'},
+            {'href': '/imoveis', 'rel': 'create', 'type': 'POST'},
         ]
     }
 
@@ -73,9 +85,14 @@ def test_listar_imoveis_retorna_erro_404_quando_nao_existem(mock_connect_db, cli
     mock_connect_db.return_value = mock_conn
 
     response = client.get('/imoveis')
+    assert response.status_code == 404
 
-    assert response.status_code == 404  
-    assert response.get_json() == {'erro': 'Nenhum imóvel encontrado'}
+    assert response.get_json() == {
+        'erro': 'Nenhum imóvel encontrado',
+        '_links': [
+            {'href': '/imoveis', 'rel': 'create', 'type': 'POST'},
+        ]
+    }
 
 
 
@@ -100,10 +117,18 @@ def test_criar_imovel_retorna_201_quando_sucesso(mock_connect_db, client):
     }
 
     response = client.post('/imoveis', json=novo_imovel)
-
     assert response.status_code == 201
-    assert response.get_json() == {'mensagem': 'Imóvel adicionado com sucesso'}
-    mock_conn.commit.assert_called_once() 
+
+    assert response.get_json() == {
+        'mensagem': 'Imóvel adicionado com sucesso',
+        '_links': [
+            {'href': '/imoveis/1', 'rel': 'self',   'type': 'GET'},
+            {'href': '/imoveis/1', 'rel': 'update', 'type': 'PUT'},
+            {'href': '/imoveis/1', 'rel': 'delete', 'type': 'DELETE'},
+            {'href': '/imoveis',   'rel': 'list_all', 'type': 'GET'},
+        ]
+    }
+    mock_conn.commit.assert_called_once()
 
 
 
@@ -117,9 +142,15 @@ def test_criar_imovel_retorna_400_quando_dados_invalidos(mock_connect_db, client
     mock_connect_db.return_value = mock_conn
 
     response = client.post('/imoveis', json={})
-
     assert response.status_code == 400
-    assert response.get_json() == {'erro': 'Dados inválidos ou faltantes'}
+
+    assert response.get_json() == {
+        'erro': 'Dados inválidos ou faltantes',
+        '_links': [
+            {'href': '/imoveis', 'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis', 'rel': 'create',  'type': 'POST'},
+        ]
+    }
 
 
 
@@ -128,15 +159,16 @@ def test_get_imovel_por_id_retorna_200_quando_sucesso(mock_connect_db, client):
     mock_conn = MagicMock()
     mock_cursor = MagicMock()
     mock_conn.cursor.return_value = mock_cursor
-
-    mock_cursor.fetchone.return_value = (2, 'av. Brasil', 'Avenida', 'Jd. América', 'São Paulo',
-                                         '01430001', 'apartamento', 50000000, '2002-12-31')
-
+    
+    mock_cursor.fetchone.return_value = (
+        2, 'av. Brasil', 'Avenida', 'Jd. América', 'São Paulo',
+        '01430001', 'apartamento', 50000000, '2002-12-31'
+    )
     mock_connect_db.return_value = mock_conn
 
     response = client.get('/imoveis/2')
-
     assert response.status_code == 200
+
     assert response.get_json() == {
         'id': 2,
         'logradouro': 'av. Brasil',
@@ -147,7 +179,15 @@ def test_get_imovel_por_id_retorna_200_quando_sucesso(mock_connect_db, client):
         'tipo': 'apartamento',
         'valor': 50000000,
         'data_aquisicao': '2002-12-31',
+        '_links': [
+            {'href': '/imoveis/2', 'rel': 'self',   'type': 'GET'},
+            {'href': '/imoveis/2', 'rel': 'update', 'type': 'PUT'},
+            {'href': '/imoveis/2', 'rel': 'delete', 'type': 'DELETE'},
+            {'href': '/imoveis',   'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis',   'rel': 'create',   'type': 'POST'},
+        ]
     }
+
 
 
 
@@ -161,9 +201,15 @@ def test_get_imovel_por_id_retorna_404_quando_nao_existe(mock_connect_db, client
     mock_connect_db.return_value = mock_conn
 
     response = client.get('/imoveis/999')
-
     assert response.status_code == 404
-    assert response.get_json() == {'erro': 'Imóvel não encontrado'}
+
+    assert response.get_json() == {
+        'erro': 'Imóvel não encontrado',
+        '_links': [
+            {'href': '/imoveis', 'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis', 'rel': 'create',   'type': 'POST'},
+        ]
+    }
 
 
 
@@ -177,10 +223,18 @@ def test_delete_imovel_retorna_200_quando_sucesso(mock_connect_db, client):
     mock_connect_db.return_value = mock_conn
 
     response = client.delete('/imoveis/1')
-
     assert response.status_code == 200
-    assert response.get_json() == {'mensagem': 'Imóvel apagado com sucesso'}
+
+    assert response.get_json() == {
+        'mensagem': 'Imóvel apagado com sucesso',
+        '_links': [
+            {'href': '/imoveis', 'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis', 'rel': 'create',   'type': 'POST'},
+        ]
+    }
     mock_conn.commit.assert_called_once()
+
+
 
 
 
@@ -194,9 +248,15 @@ def test_delete_imovel_retorna_404_quando_nao_existe(mock_connect_db, client):
     mock_connect_db.return_value = mock_conn
 
     response = client.delete('/imoveis/999')
-
     assert response.status_code == 404
-    assert response.get_json() == {'erro': 'Nenhum imóvel encontrado com o ID fornecido'}
+
+    assert response.get_json() == {
+        'erro': 'Nenhum imóvel encontrado com o ID fornecido',
+        '_links': [
+            {'href': '/imoveis', 'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis', 'rel': 'create',   'type': 'POST'},
+        ]
+    }
 
 
 
@@ -221,10 +281,20 @@ def test_put_imovel_retorna_200_quando_sucesso(mock_connect_db, client):
     }
 
     response = client.put('/imoveis/1', json=new_imovel_data)
-
     assert response.status_code == 200
-    assert response.get_json() == {'mensagem': 'Imóvel atualizado com sucesso'}
+
+    assert response.get_json() == {
+        'mensagem': 'Imóvel atualizado com sucesso',
+        '_links': [
+            {'href': '/imoveis/1', 'rel': 'self',   'type': 'GET'},
+            {'href': '/imoveis/1', 'rel': 'update', 'type': 'PUT'},
+            {'href': '/imoveis/1', 'rel': 'delete', 'type': 'DELETE'},
+            {'href': '/imoveis',   'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis',   'rel': 'create',   'type': 'POST'},
+        ]
+    }
     mock_conn.commit.assert_called_once()
+
 
 
 
@@ -238,6 +308,12 @@ def test_put_imovel_retorna_404_quando_nao_existe(mock_connect_db, client):
     mock_connect_db.return_value = mock_conn
 
     response = client.put('/imoveis/999', json={})
-
     assert response.status_code == 404
-    assert response.get_json() == {'erro': 'Nenhum imóvel encontrado com o ID fornecido'}
+
+    assert response.get_json() == {
+        'erro': 'Nenhum imóvel encontrado com o ID fornecido',
+        '_links': [
+            {'href': '/imoveis', 'rel': 'list_all', 'type': 'GET'},
+            {'href': '/imoveis', 'rel': 'create',   'type': 'POST'},
+        ]
+    }
