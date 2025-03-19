@@ -146,3 +146,11 @@ SEU_REPOSITORIO/
 ```
 
 ---
+
+
+## Link para o serviço:
+```
+http://50.16.164.251
+```
+
+---
