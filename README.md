@@ -1,6 +1,6 @@
 ## README - Instruções de Configuração e Execução
 
-Este projeto contém uma API Flask para gerenciamento de imóveis, seguindo uma arquitetura em camadas (controllers, repositories, etc.). Abaixo estão os passos para **inicializar** o projeto localmente e **rodar os testes** em diferentes sistemas operacionais.
+Este projeto contém uma API Flask para gerenciamento de imóveis, seguindo uma arquitetura em camadas (controllers, repositories, etc.). Abaixo estão os passos para **inicializar** o projeto localmente, **rodar os testes** em diferentes sistemas operacionais e os detalhes das rotas disponíveis na aplicação.
 
 ---
 
@@ -60,7 +60,11 @@ Com o ambiente virtual **ativado**, instale as dependências listadas em `requir
 pip install -r requirements.txt
 ```
 
-Se estiver usando Python no Windows e o comando `pip` não funcionar, tente `python -m pip install -r requirements.txt`.
+Se estiver usando Python no Windows e o comando `pip` não funcionar, tente:
+
+```bash
+python -m pip install -r requirements.txt
+```
 
 ---
 
@@ -76,10 +80,9 @@ DB_DATABASE=
 DB_USERNAME=
 DB_PASSWORD=
 SSL_CA_PATH=
-
 ```
 
-Certifique-se de que o projeto está lendo o `.env` adequadamente (usando `python-dotenv`, por exemplo).
+Certifique-se de que o projeto está lendo o `.env` adequadamente (usando, por exemplo, `python-dotenv`).
 
 ---
 
@@ -90,6 +93,7 @@ No diretório raiz do projeto (onde está o `main.py` ou o script principal), ro
 ```bash
 python app/main.py
 ```
+
 ou, se você tiver uma função `create_app()`, pode ser algo como:
 
 ```bash
@@ -97,7 +101,7 @@ cd app
 python main.py
 ```
 
-- A API Flask deve iniciar em modo debug, exibindo algo como:  
+- A API Flask iniciará em modo debug, exibindo algo como:  
   `* Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)`
 
 - Acesse no navegador:  
@@ -112,13 +116,14 @@ Dentro do **diretório raiz** do projeto, execute:
 ```bash
 python -m pytest
 ```
-ou apenas:
+
+ou simplesmente:
 
 ```bash
 pytest
 ```
 
-Isso irá procurar pelos arquivos de teste (`test_*.py`) e rodar cada teste, exibindo um resumo dos resultados.
+Isso irá procurar pelos arquivos de teste (`test_*.py`) e executar os testes, exibindo um resumo dos resultados.
 
 > Se estiver em Windows, você pode precisar do comando `py -m pytest`.
 
@@ -144,5 +149,81 @@ SEU_REPOSITORIO/
 ├─ requirements.txt
 └─ README.md
 ```
+
+---
+
+## 9. **Rotas da API**
+
+As rotas disponíveis na aplicação estão configuradas para o IP `50.16.164.251` e estão descritas a seguir conforme o export do Postman:
+
+### **Listar Todos os Imóveis**
+- **Método:** GET  
+- **URL:** `http://50.16.164.251/imoveis`  
+- **Descrição:** Retorna uma lista de todos os imóveis cadastrados, com detalhes como `id`, `bairro`, `cep`, `cidade`, `data_aquisicao`, `logradouro`, `tipo`, `tipo_logradouro` e `valor`.
+
+### **Listar um Imóvel Específico pelo ID**
+- **Método:** GET  
+- **URL:** `http://50.16.164.251/imoveis/{id}`  
+- **Exemplo:** `http://50.16.164.251/imoveis/1000`  
+- **Descrição:** Retorna os detalhes de um imóvel específico com base no ID fornecido.
+
+### **Adicionar um Novo Imóvel**
+- **Método:** POST  
+- **URL:** `http://50.16.164.251/imoveis`  
+- **Exemplo de Body (JSON):**
+
+```json
+{
+    "logradouro": "av. Europa",
+    "tipo_logradouro": "Avenidaaa",
+    "bairro": "Jd. Europa",
+    "cidade": "São Paulo",
+    "cep": "01449000",
+    "tipo": "casa",
+    "valor": 20000000,
+    "data_aquisicao": "2019-12-12"
+}
+```
+
+- **Descrição:** Insere um novo imóvel na base de dados com as informações enviadas.
+
+### **Atualizar um Imóvel Existente**
+- **Método:** PUT  
+- **URL:** `http://50.16.164.251/imoveis/{id}`  
+- **Exemplo:** `http://50.16.164.251/imoveis/1004`  
+- **Exemplo de Body (JSON):**
+
+```json
+{
+    "logradouro": "av. Europa",
+    "tipo_logradouro": "Avenida88",
+    "bairro": "Jd. Europaaaa",
+    "cidade": "São Paulo",
+    "cep": "01449000",
+    "tipo": "casa",
+    "valor": 20000000,
+    "data_aquisicao": "2019-12-12"
+}
+```
+
+- **Descrição:** Atualiza os dados de um imóvel existente identificado pelo ID informado.
+
+### **Remover um Imóvel Existente**
+- **Método:** DELETE  
+- **URL:** `http://50.16.164.251/imoveis/{id}`  
+- **Exemplo:** `http://50.16.164.251/imoveis/1004`  
+- **Descrição:** Remove o imóvel com o ID especificado da base de dados.
+
+### **Listar Imóveis por Tipo**
+- **Método:** GET  
+- **URL:** `http://50.16.164.251/imoveis/tipo/{tipo}`  
+- **Exemplo:** `http://50.16.164.251/imoveis/tipo/casa`  
+- **Descrição:** Retorna uma lista de imóveis filtrados pelo tipo (por exemplo, "casa").
+
+### **Listar Imóveis por Cidade**
+- **Método:** GET  
+- **URL:** `http://50.16.164.251/imoveis/cidade/{cidade}`  
+- **Exemplo:** `http://50.16.164.251/imoveis/cidade/North Garyville`  
+- **Descrição:** Retorna uma lista de imóveis filtrados pela cidade especificada.
 
 ---
